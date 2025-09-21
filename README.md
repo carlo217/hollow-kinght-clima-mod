@@ -1,90 +1,14 @@
-using UnityEngine;
-using System.Collections.Generic;
+# Sistema de Clima Dinámico para Hollow Knight - Borrador de Mod
 
-public enum WeatherType
-{
-    Clear,
-    Rain,
-    Thunderstorm,
-    Snow,
-    Windy
-}
+Este archivo muestra un ejemplo conceptual de cómo podría estructurarse el código para un mod de clima dinámico en Hollow Knight.  
+El script principal `WeatherSystem.cs` gestiona los diferentes tipos de clima, activa/desactiva los efectos visuales y sonoros, y puede integrarse con mecánicas de juego (como enemigos que se fortalecen en tormentas).
 
-public class WeatherSystem : MonoBehaviour
-{
-    public WeatherType currentWeather;
-    public float weatherDuration = 60f; // Duration for each weather type
-    private float timer = 0f;
+## ¿Qué se necesita para llevar este mod a la realidad?
 
-    // References to particle systems and effects
-    public ParticleSystem rainParticles;
-    public ParticleSystem snowParticles;
-    public AudioSource thunderAudio;
-    public GameObject windEffect;
-    public List<GameObject> puddlePrefabs;
+- **Programadores con experiencia en C# y Unity** (el motor de Hollow Knight).
+- Personas con experiencia en **modding de Hollow Knight** (instalación, frameworks de mods, integración con el juego).
+- **Artistas digitales** para crear nuevos efectos visuales (lluvia, nieve, charcos, reflejos, etc).
+- **Testers** para probar el mod y ayudar a balancear la jugabilidad.
 
-    void Start()
-    {
-        SetWeather(WeatherType.Clear);
-    }
-
-    void Update()
-    {
-        timer += Time.deltaTime;
-        if (timer > weatherDuration)
-        {
-            WeatherType nextWeather = GetRandomWeather();
-            SetWeather(nextWeather);
-            timer = 0f;
-        }
-    }
-
-    WeatherType GetRandomWeather()
-    {
-        // Custom logic to select weather based on area or randomness
-        int rand = Random.Range(0, 5);
-        return (WeatherType)rand;
-    }
-
-    void SetWeather(WeatherType type)
-    {
-        currentWeather = type;
-        rainParticles.Stop();
-        snowParticles.Stop();
-        thunderAudio.Stop();
-        windEffect.SetActive(false);
-
-        switch (type)
-        {
-            case WeatherType.Clear:
-                // No effects
-                break;
-            case WeatherType.Rain:
-                rainParticles.Play();
-                SpawnPuddles();
-                break;
-            case WeatherType.Thunderstorm:
-                rainParticles.Play();
-                thunderAudio.Play();
-                // Trigger enemy electric boost here
-                break;
-            case WeatherType.Snow:
-                snowParticles.Play();
-                break;
-            case WeatherType.Windy:
-                windEffect.SetActive(true);
-                // Affect jump physics here
-                break;
-        }
-    }
-
-    void SpawnPuddles()
-    {
-        // Example: Spawn puddles in the scene
-        foreach (var puddle in puddlePrefabs)
-        {
-            puddle.SetActive(true);
-            // Puddles could use reflective shaders for Knight reflection
-        }
-    }
-}
+¿Quieres ayudar? ¿Sabes de programación, arte digital o modding?  
+¡Comenta abajo o abre un issue en este repositorio!
