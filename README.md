@@ -1,42 +1,90 @@
-# Mod: Sistema de Clima Dinámico para Hollow Knight
+using UnityEngine;
+using System.Collections.Generic;
 
-## Descripción General
-Implementar un sistema de clima dinámico que altere la experiencia visual y jugable de Hollow Knight, haciendo el mundo más inmersivo y vivo.
+public enum WeatherType
+{
+    Clear,
+    Rain,
+    Thunderstorm,
+    Snow,
+    Windy
+}
 
-## Características Propuestas
+public class WeatherSystem : MonoBehaviour
+{
+    public WeatherType currentWeather;
+    public float weatherDuration = 60f; // Duration for each weather type
+    private float timer = 0f;
 
-1. **Clima Dinámico**
-   - Lluvia: efectos visuales y sonoros.
-   - Tormentas eléctricas: rayos, truenos y flashes de luz.
-   - Nieve en ciertas zonas: partículas, acumulación y posible resbalón.
-   - Viento: fuerza variable que afecta los saltos y desplazamientos del Caballero.
+    // References to particle systems and effects
+    public ParticleSystem rainParticles;
+    public ParticleSystem snowParticles;
+    public AudioSource thunderAudio;
+    public GameObject windEffect;
+    public List<GameObject> puddlePrefabs;
 
-2. **Impacto en Jugabilidad**
-   - El viento puede modificar la trayectoria de los saltos.
-   - Tormentas eléctricas recargan enemigos eléctricos, haciéndolos más peligrosos.
-   - Cambios en la IA y comportamiento de algunos enemigos según el clima.
-   - Charcos en el suelo durante/tras la lluvia, con reflejo del Caballero.
+    void Start()
+    {
+        SetWeather(WeatherType.Clear);
+    }
 
-3. **Efectos Visuales**
-   - Efectos de partículas adaptativos.
-   - Reflejos en charcos, posiblemente mediante shaders.
-   - Cambios en la iluminación y colores según el clima.
+    void Update()
+    {
+        timer += Time.deltaTime;
+        if (timer > weatherDuration)
+        {
+            WeatherType nextWeather = GetRandomWeather();
+            SetWeather(nextWeather);
+            timer = 0f;
+        }
+    }
 
-## Beneficios
-- Mayor inmersión y variedad en la exploración.
-- Retos adicionales y adaptativos según el clima.
-- Potencial para nuevas mecánicas y secretos.
+    WeatherType GetRandomWeather()
+    {
+        // Custom logic to select weather based on area or randomness
+        int rand = Random.Range(0, 5);
+        return (WeatherType)rand;
+    }
 
-## Dificultades Técnicas
-- Integración con el motor y assets de Hollow Knight (Unity).
-- Modificación de comportamientos enemigos.
-- Optimización para evitar pérdida de rendimiento.
+    void SetWeather(WeatherType type)
+    {
+        currentWeather = type;
+        rainParticles.Stop();
+        snowParticles.Stop();
+        thunderAudio.Stop();
+        windEffect.SetActive(false);
 
-## ¿Qué se necesita?
-- Programadores con experiencia en modding de Hollow Knight y Unity.
-- Artistas para nuevos efectos visuales.
-- Testers para equilibrar la jugabilidad.
+        switch (type)
+        {
+            case WeatherType.Clear:
+                // No effects
+                break;
+            case WeatherType.Rain:
+                rainParticles.Play();
+                SpawnPuddles();
+                break;
+            case WeatherType.Thunderstorm:
+                rainParticles.Play();
+                thunderAudio.Play();
+                // Trigger enemy electric boost here
+                break;
+            case WeatherType.Snow:
+                snowParticles.Play();
+                break;
+            case WeatherType.Windy:
+                windEffect.SetActive(true);
+                // Affect jump physics here
+                break;
+        }
+    }
 
----
-
-**¿Te gustaría colaborar, aportar ideas o ayudar a desarrollar este mod? ¡Comenta abajo o abre un issue!**
+    void SpawnPuddles()
+    {
+        // Example: Spawn puddles in the scene
+        foreach (var puddle in puddlePrefabs)
+        {
+            puddle.SetActive(true);
+            // Puddles could use reflective shaders for Knight reflection
+        }
+    }
+}
